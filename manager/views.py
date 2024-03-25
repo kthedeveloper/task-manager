@@ -5,6 +5,7 @@ from .models import Project, Task, Comment
 from .serializers import ProjectSerializer, TaskSerializer, CommentSerializer, UserRegistrationSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsManager
+from .tasks import send_task_assigned_email
 
 
 class UserRegistrationAPIView(APIView):
@@ -27,7 +28,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     """A viewset for viewing and editing task instances"""
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -39,6 +40,15 @@ class TaskViewSet(viewsets.ModelViewSet):
         if project_id is not None:
             queryset = queryset.filter(project_id=project_id)
         return queryset
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        if instance.assigned_to:
+
+            send_task_assigned_email.delay(
+                user_email=instance.assigned_to.email,
+                task_title=instance.title
+            )
 
 
 class CommentViewSet(viewsets.ModelViewSet):

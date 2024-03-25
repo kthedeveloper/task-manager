@@ -29,7 +29,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    members = UserSerializer(many=True, read_only=True)
+    members = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), many=True, required=False
+    )
 
     class Meta:
         model = Project
@@ -37,13 +39,17 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    assigned_to = UserSerializer(read_only=True)
+    assigned_to = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(groups__name='Worker'), required=False, allow_null=True
+    )
     project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
 
     class Meta:
         model = Task
         fields = (
-            'id', 'title', 'description', 'status', 'created_at', 'updated_at', 'due_date', 'assigned_to', 'project')
+            'id', 'title', 'description', 'status', 'created_at', 'updated_at', 'due_date', 'assigned_to', 'project'
+        )
+
 
 
 class CommentSerializer(serializers.ModelSerializer):

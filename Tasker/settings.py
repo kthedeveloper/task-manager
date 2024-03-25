@@ -144,12 +144,6 @@ REST_FRAMEWORK = {
     ]
 }
 
-"""EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_PORT = 587"""
-
 DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
     'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm{uid}/{token}',
@@ -158,4 +152,20 @@ DJOSER = {
     'SERIALIZERS': {}
 }
 
+# Celery Configuration
+REDIS_HOST = 'localhost'
+REDIS_PORT = '6379'
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# for production change backend to 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('email_login')
+EMAIL_HOST_PASSWORD = os.getenv('email_password')
+DEFAULT_FROM_EMAIL = 'example@gmail.com'
